@@ -146,7 +146,7 @@ public class ALThreadMutexMgr
                 continue;
             
             //释放所有锁
-            info.reduceLockTime();
+            info.releaseAllLock();
         }
 
         //清空队列

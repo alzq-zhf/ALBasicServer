@@ -101,6 +101,10 @@ public class ALServerLog
     {
         _Log (LogLevel.FATAL, text);
     }
+    public static void Sys(String text)
+    {
+        _Log (LogLevel.SYS, text);
+    }
     
     public static void Info(ByteBuffer _buffer)
     {
@@ -133,5 +137,6 @@ public class ALServerLog
         WARNING, // 可能存在的潜在问题的提示
         ERROR, // 系统发生异常的提示
         FATAL, // 系统发生了致命的错误的提示
+        SYS,
     }
 }
