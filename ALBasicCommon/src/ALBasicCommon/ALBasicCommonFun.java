@@ -10,6 +10,7 @@ import java.util.Random;
 public class ALBasicCommonFun
 {
     private static Random g_randomObj = new Random();
+    private static String g_sHexStrIdxString = "0123456789ABCDEF";
     
     /*****************
      * 将字节转化为int对象
@@ -199,21 +200,71 @@ public class ALBasicCommonFun
     }
     
     /**
-     * 产生一个处于[0,99]之间的随机整数
+     * 产生一个处于区间 0<= x < _iRangeLimit 的随机整数
      * @return
      */
-    public static int getRandomInt()
+    public static int getRandomIntByRange(int _iRangeLimit)
     {
-        return Math.abs(g_randomObj.nextInt(100));
+        return Math.abs(g_randomObj.nextInt(_iRangeLimit));
     }
     
     /**
-     * 产生一个处于[0,Delta]之间的随机整数
+     * 产生一个处于区间 0<= x <= _iRangeLimit 的随机整数
      * @param iDelta
      * @return
      */
-    public static int getRandomInt(int iDelta)
+    public static int getRandomInt(int _iRangeLimit)
     {
-        return Math.abs(g_randomObj.nextInt(iDelta + 1));
+        return Math.abs(g_randomObj.nextInt(_iRangeLimit + 1));
+    }
+    
+    /**
+     * 将字节数组转换成十六进制字符串
+     * @param iDelta
+     * @return
+     */
+    public static String getHexString(byte[] _buf)
+    {
+        if(null == _buf)
+            return null;
+        
+        //逐个字节处理
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < _buf.length; i++)
+        {
+            byte b = _buf[i];
+            
+            //取前4位
+            builder.append(g_sHexStrIdxString.charAt(b >> 4));
+            //取后4位
+            builder.append(g_sHexStrIdxString.charAt(b & 0x0F));
+        }
+        
+        return builder.toString();
+    }
+    public static String getHexString(ByteBuffer _buf)
+    {
+        if(null == _buf)
+            return null;
+        
+        //记录当前下标位置
+        int prePos = _buf.position();
+        int len = _buf.limit();
+        //逐个字节处理
+        StringBuilder builder = new StringBuilder();
+        for(int i = 0; i < len; i++)
+        {
+            byte b = _buf.get();
+            
+            //取前4位
+            builder.append(g_sHexStrIdxString.charAt(b >> 4));
+            //取后4位
+            builder.append(g_sHexStrIdxString.charAt(b & 0x0F));
+        }
+        
+        //重置buff下标
+        _buf.position(prePos);
+        
+        return builder.toString();
     }
 }

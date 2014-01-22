@@ -2,6 +2,7 @@ package ALBasicServer.ALServerAsynTask;
 
 import java.util.ArrayList;
 
+import ALBasicServer.ALTask._AALAsynCallAndBackTask;
 import ALBasicServer.ALTask._IALAsynCallBackTask;
 import ALBasicServer.ALTask._IALAsynCallTask;
 import ALBasicServer.ALTask._IALAsynRunnableTask;
@@ -77,6 +78,21 @@ public class ALAsynTaskManager
         
         //注册任务
         _m_lAsynTaskThreadList.get(_threadIdx)._getTaskManager().regTask(_callObj, _callBackObj);
+    }
+    
+    /***************
+     * 为指定序号的异步处理线程加入回调类型异步任务处理
+     * 
+     * @author alzq.z
+     * @time   Feb 19, 2013 4:09:01 PM
+     */
+    public <T> void regTask(int _threadIdx, _AALAsynCallAndBackTask<T> _task)
+    {
+        if(_threadIdx > maxIdx || _threadIdx < 0)
+            _threadIdx = 0;
+        
+        //注册任务
+        _m_lAsynTaskThreadList.get(_threadIdx)._getTaskManager().regTask(_task, _task);
     }
     
     /*****************

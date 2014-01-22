@@ -3,6 +3,7 @@ package ALBasicServer.ALThread;
 import java.util.Hashtable;
 
 import ALBasicServer.ALServerAsynTask.ALAsynTaskThread;
+import ALBasicServer.ALServerCmd.ALCmdLineReadThread;
 import ALBasicServer.ALServerSynTask.ALSynTaskDealThread;
 import ALBasicServer.ALServerSynTask.ALSynTimingTaskCheckThread;
 import ALBasicServer.ALSocket.ALServerSocketSendThread;
@@ -33,6 +34,21 @@ public class ALThreadManager
     protected ALThreadManager()
     {
         _m_htThreadMutexInfoTable = new Hashtable<Long, ALThreadMutexMgr>();
+    }
+
+    /*********************
+     * 开启命令行读取处理线程
+     * 
+     * @author alzq.z
+     * @time   Feb 18, 2013 10:36:17 PM
+     */
+    public ALCmdLineReadThread createCmdReadThread()
+    {
+        ALCmdLineReadThread readThread = new ALCmdLineReadThread();
+        //开启线程
+        readThread.start();
+        
+        return readThread;
     }
 
     /*********************

@@ -1,6 +1,6 @@
 package ALBasicServer.ALVerifyObj;
 
-import ALBasicServer.ALBasicServer;
+import ALBasicServer.ALSocket.ALBasicServerSocket;
 import ALBasicServer.ALTask._IALAsynRunnableTask;
 
 
@@ -12,20 +12,23 @@ import ALBasicServer.ALTask._IALAsynRunnableTask;
 public class AsynRun_UserLoginTask implements _IALAsynRunnableTask
 {
     private ALVerifyDealerObj _m_vdVerifyDealer;
-    private String _m_sUserName;
-    private String _m_sUserPassword;
+    private ALBasicServerSocket _m_ssSocketObj;
     
-    public AsynRun_UserLoginTask(int _serialize, String _name, String _password)
+    public AsynRun_UserLoginTask(int _serialize, ALBasicServerSocket _socketObj)
     {
         _m_vdVerifyDealer = new ALVerifyDealerObj(_serialize);
-        _m_sUserName = _name;
-        _m_sUserPassword = _password;
+        _m_ssSocketObj = _socketObj;
     }
 
     @Override
     public void run()
     {
-        ALBasicServer.getVerifyObj().verifyIdentity(_m_vdVerifyDealer, _m_sUserName, _m_sUserPassword);
+        //获取验证对象
+        _IALVerifyFun verifyFun = ALVerifyObjMgr.getInstance().getVerifyObj(_m_ssSocketObj.getVerifyObjIdx());
+        if(null == verifyFun)
+            return ;
+        
+        verifyFun.verifyIdentity(_m_vdVerifyDealer, _m_ssSocketObj.getUserName(), _m_ssSocketObj.getUserPassword());
     }
 
 }

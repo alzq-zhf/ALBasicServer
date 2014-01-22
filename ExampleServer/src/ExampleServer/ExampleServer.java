@@ -5,18 +5,15 @@ import ALBasicServer.ALBasicServer;
 public class ExampleServer {
 
 	/**
-	 * Ê¾Àı·şÎñÆ÷µÄ¿ªÆôÖ÷º¯Êı
+	 * ç¤ºä¾‹æœåŠ¡å™¨çš„å¼€å¯ä¸»å‡½æ•°
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//³õÊ¼»¯»ù±¾·şÎñÆ÷ÅäÖÃ£¬²¢¿ªÆô1¸öÒì²½ÈÎÎñ´¦ÀíÏß³Ì
+		//åˆå§‹åŒ–åŸºæœ¬æœåŠ¡å™¨é…ç½®ï¼Œå¹¶å¼€å¯1ä¸ªå¼‚æ­¥ä»»åŠ¡å¤„ç†çº¿ç¨‹
 		ALBasicServer.initBasicServer(1);
-
-		//×¢²áÒ»¸öÑéÖ¤ĞÅÏ¢µÄ´¦Àí¶ÔÏó
-		ALBasicServer.regVerifyObj(new ExampleServerVerifyObj());
 		
-		//¿ªÊ¼½øĞĞ¼àÌı²Ù×÷
-		ALBasicServer.startServer();
+		//å¼€å§‹è¿›è¡Œç›‘å¬æ“ä½œ
+		ALBasicServer.startListener(1001, 131072, new ExampleServerVerifyObj());
 	}
 
 }

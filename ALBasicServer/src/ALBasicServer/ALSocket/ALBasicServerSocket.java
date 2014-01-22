@@ -6,7 +6,6 @@ import java.nio.channels.SocketChannel;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantLock;
 
-import ALBasicServer.ALBasicServerConf;
 import ALBasicServer.ALServerSynTask.ALSynTaskManager;
 import ALBasicServer.ALVerifyObj.ALVerifyObjMgr;
 import ALServerLog.ALServerLog;
@@ -17,6 +16,8 @@ public class ALBasicServerSocket
 {
     /** 对应的连接ID */
     private long _m_ID;
+    /** 验证对象的序列号 */
+    private int _m_iVerifyObjIdx;
     /** 对应的连接对象 */
     private SocketChannel _m_scSocketChannel;
     /** 对应的处理对象 */
@@ -45,9 +46,10 @@ public class ALBasicServerSocket
     private int _m_sBufferLen;
     private ByteBuffer _m_bByteBuffer;
     
-    public ALBasicServerSocket(long _id, SocketChannel _channel)
+    public ALBasicServerSocket(long _id, int _verifyObjIdx, SocketChannel _channel, int _bufLen)
     {
         _m_ID = _id;
+        _m_iVerifyObjIdx = _verifyObjIdx;
         _m_scSocketChannel = _channel;
         
         _m_clListener = null;
@@ -61,11 +63,12 @@ public class ALBasicServerSocket
         _m_lSendBufferList = new LinkedList<ByteBuffer>();
         
         _m_sBufferLen = 0;
-        _m_bByteBuffer = ByteBuffer.allocate(ALBasicServerConf.getInstance().getServerRecBufferLen());
+        _m_bByteBuffer = ByteBuffer.allocate(_bufLen);
         _m_bByteBuffer.clear();
     }
     
     public long getSocketID() {return _m_ID;}
+    public int getVerifyObjIdx() {return _m_iVerifyObjIdx;}
     public String getUserName() {return _m_sUserName;}
     public String getUserPassword() {return _m_sUserPassword;}
     public _AALBasicServerSocketListener getListener() {return _m_clListener;}

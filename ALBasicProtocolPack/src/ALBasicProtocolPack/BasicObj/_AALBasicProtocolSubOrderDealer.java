@@ -43,8 +43,8 @@ public abstract class _AALBasicProtocolSubOrderDealer<T extends _IALProtocolStru
 	 * @author alzq.z
 	 * @time   Feb 19, 2013 11:36:41 AM
 	 */
-    public int getMainOrder() {return basicInfoObj.getMainOrder();}
-    public int getSubOrder() {return basicInfoObj.getSubOrder();}
+    public byte getMainOrder() {return basicInfoObj.getMainOrder();}
+    public byte getSubOrder() {return basicInfoObj.getSubOrder();}
 	
 	/**********************
 	 * 创建消息结构体用于读取字节，并转化为消息对象

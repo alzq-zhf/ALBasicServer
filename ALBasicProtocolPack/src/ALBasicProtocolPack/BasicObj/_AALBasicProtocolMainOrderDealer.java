@@ -2,6 +2,7 @@ package ALBasicProtocolPack.BasicObj;
 
 import java.nio.ByteBuffer;
 
+import ALBasicCommon.ALBasicCommonFun;
 import ALServerLog.ALServerLog;
 
 
@@ -48,7 +49,7 @@ public abstract class _AALBasicProtocolMainOrderDealer
             ALServerLog.Fatal(mainOrder + " doesn't match the dealer's(" + _dealer.getClass().toString() + ") main order: " + _dealer.getMainOrder() + "!");
         }
         
-        int subOrder = _dealer.getSubOrder();
+        int subOrder = ALBasicCommonFun.byte2int(_dealer.getSubOrder());
         if(subOrder >= dealArray.length)
         {
         	ALServerLog.Fatal(mainOrder + " Protocol dispather don't have " + subOrder + " size list to save the dealer obj!");

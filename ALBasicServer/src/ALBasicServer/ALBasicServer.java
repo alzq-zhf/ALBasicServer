@@ -10,8 +10,6 @@ public class ALBasicServer
 {
     /** 是否成功初始化 */
     private static boolean g_inited = false;
-    /** 注册的验证对象 */
-    private static _IALVerifyFun g_CosVerifyObj = null;
     
     /**
      * 服务器模块启动初始化函数<br>
@@ -43,6 +41,9 @@ public class ALBasicServer
             ALServerLog.Fatal(ALBasicServerConf.getInstance().getServerTag() + " start initialize...");
             ALServerLog.Fatal("Server Log Level - " + ALServerLog.getLogLevel());
             
+            //开启命令行读取任务
+            ALThreadManager.getInstance().createCmdReadThread();
+            
             //开启定时任务的检测线程
             ALThreadManager.getInstance().createTimingTaskCheckThread();
             
@@ -73,36 +74,20 @@ public class ALBasicServer
         }
     }
     
-    /*********************
-     * 设置验证对象
-     * 
-     * @author alzq.z
-     * @time   Feb 19, 2013 4:33:57 PM
-     */
-    public static void regVerifyObj(_IALVerifyFun _obj)
-    {
-        g_CosVerifyObj = _obj;
-    }
-    
-    /************
-     * 获取验证对象
-     * 
-     * @author alzq.z
-     * @time   Feb 19, 2013 4:34:01 PM
-     */
-    public static _IALVerifyFun getVerifyObj()
-    {
-        return g_CosVerifyObj;
-    }
-    
     /**********************
      * 开启服务器监听端口，并对所有返回数据做处理
      * 
      * @author alzq.z
      * @time   Feb 19, 2013 4:34:07 PM
      */
-    public static void startServer()
+    public static void startListener(int _port, int _recBuffLen, _IALVerifyFun _verifyObj)
     {
-        ALServerSocketListenFunction.startServer();
+        if(null == _verifyObj)
+        {
+            ALServerLog.Fatal("Can not Use The Null VerifyObj!");
+            return ;
+        }
+        
+        ALServerSocketListenFunction.startServer(_port, _recBuffLen, _verifyObj);
     }
 }

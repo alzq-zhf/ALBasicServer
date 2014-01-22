@@ -30,10 +30,6 @@ public class ALBasicServerConf
     private int _m_iSendThreadNum;
     /** 定时任务检测时间的精度 */
     private int _m_iTimerCheckTime;
-    /** 服务器开启端口 */
-    private int _m_iServerPort;
-    /** 服务器端口接收BUF长度 */
-    private int _m_iServerRecBufferLen;
     
     public ALBasicServerConf()
     {
@@ -42,8 +38,6 @@ public class ALBasicServerConf
         _m_iSynTaskThreadNum = 4;
         _m_iSendThreadNum = 1;
         _m_iTimerCheckTime = 50;
-        _m_iServerPort = 9527;
-        _m_iServerRecBufferLen = 131072;
     }
 
     public String getServerTag() {return _m_sServerTag;}
@@ -51,8 +45,6 @@ public class ALBasicServerConf
     public int getSynTaskThreadNum() {return _m_iSynTaskThreadNum;}
     public int getSendThreadNum() {return _m_iSendThreadNum;}
     public int getTimerCheckTime() {return _m_iTimerCheckTime;}
-    public int getServerPort() {return _m_iServerPort;}
-    public int getServerRecBufferLen() {return _m_iServerRecBufferLen;}
     
     /*******************
      * 初始化属性设置对象，返回是否成功
@@ -111,14 +103,6 @@ public class ALBasicServerConf
             //是否在线程内进行死锁的检测
             _m_bCheckMutex 
                 = ALConfReader.readBool(properties, "ALBasicServer.CheckMutex", _m_bCheckMutex);
-
-            //服务器开启的端口
-            _m_iServerPort 
-                = ALConfReader.readInt(properties, "ALBasicServer.ServerPort", _m_iServerPort);
-
-            //服务器端口中接收消息的BUF长度
-            _m_iServerRecBufferLen 
-                = ALConfReader.readInt(properties, "ALBasicServer.ServerSocketBufLen", _m_iServerRecBufferLen);
 
             System.out.println("[Conf init] Finish load ALBasicServer Properties ... ...");
         }

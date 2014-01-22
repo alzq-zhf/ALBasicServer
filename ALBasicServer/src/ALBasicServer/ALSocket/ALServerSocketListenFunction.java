@@ -11,7 +11,8 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-import ALBasicServer.ALBasicServerConf;
+import ALBasicServer.ALVerifyObj.ALVerifyObjMgr;
+import ALBasicServer.ALVerifyObj._IALVerifyFun;
 import ALServerLog.ALServerLog;
 
 /***********************
@@ -32,14 +33,16 @@ public class ALServerSocketListenFunction
      * @author alzq.z
      * @time   Feb 19, 2013 4:34:07 PM
      */
-    public static void startServer()
+    public static void startServer(int _port, int _recBuffLen, _IALVerifyFun _verifyObj)
     {
-        int port = ALBasicServerConf.getInstance().getServerPort();
-        InetSocketAddress socketAddress = new InetSocketAddress(port);
+        InetSocketAddress socketAddress = new InetSocketAddress(_port);
         Selector selector = null;
         
+        //注册验证处理对象
+        int verifyObjIdx = ALVerifyObjMgr.getInstance().regVerifyObj(_verifyObj);
+        
         //创建接收BUF
-        ByteBuffer recBuffer = ByteBuffer.allocate(ALBasicServerConf.getInstance().getServerRecBufferLen() * 2);
+        ByteBuffer recBuffer = ByteBuffer.allocate(_recBuffLen * 2);
         
         try {
             //创建事件响应对象
@@ -97,7 +100,7 @@ public class ALServerSocketListenFunction
                             
                             client.configureBlocking(false);
                             
-                            ALBasicServerSocket newSocket = new ALBasicServerSocket(_getSocketID(), client);
+                            ALBasicServerSocket newSocket = new ALBasicServerSocket(_getSocketID(), verifyObjIdx, client, _recBuffLen);
                             //将对象及其ID注册
                             ALServerSocketMgr.getInstance().regSocket(newSocket);
                             

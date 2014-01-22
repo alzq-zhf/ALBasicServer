@@ -1,6 +1,8 @@
 package ALBasicServer.ALVerifyObj;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.concurrent.locks.ReentrantLock;
 
 import ALBasicServer.ALServerAsynTask.ALAsynTaskManager;
 import ALBasicServer.ALServerSynTask.ALSynTaskManager;
@@ -29,11 +31,55 @@ public class ALVerifyObjMgr
         return g_instance;
     }
     
-    private Hashtable<Integer, ALBasicServerSocket> m_htVerifySocket;
+    private Hashtable<Integer, ALBasicServerSocket> _m_htVerifySocket;
+    /** 验证处理对象的队列 */
+    private ReentrantLock _m_mutex;
+    private ArrayList<_IALVerifyFun> _m_arrVerifyFunList;
     
     public ALVerifyObjMgr()
     {
-        m_htVerifySocket = new Hashtable<Integer, ALBasicServerSocket>();
+        _m_htVerifySocket = new Hashtable<Integer, ALBasicServerSocket>();
+        
+        _m_mutex = new ReentrantLock();
+        _m_arrVerifyFunList = new ArrayList<_IALVerifyFun>();
+    }
+    
+    /************
+     * 注册一个验证处理对象，并返回验证处理对象的下标
+     * 
+     * @author alzq.z
+     * @time   Jan 22, 2014 11:50:33 PM
+     */
+    public int regVerifyObj(_IALVerifyFun _verifyFun)
+    {
+        _m_mutex.lock();
+        
+        int newIdx = _m_arrVerifyFunList.size();
+        _m_arrVerifyFunList.add(_verifyFun);
+        
+        _m_mutex.unlock();
+        
+        return newIdx;
+    }
+    
+    /************
+     * 获取验证处理的对象
+     * 
+     * @author alzq.z
+     * @time   Jan 22, 2014 11:50:33 PM
+     */
+    public _IALVerifyFun getVerifyObj(int _verifyFunIdx)
+    {
+        _m_mutex.lock();
+        
+        try
+        {
+            return _m_arrVerifyFunList.get(_verifyFunIdx);
+        }
+        finally
+        {
+            _m_mutex.unlock();
+        }
     }
     
     /****************
@@ -46,10 +92,10 @@ public class ALVerifyObjMgr
     {
         int serialize = _getSerizlize();
         
-        m_htVerifySocket.put(serialize, _socket);
+        _m_htVerifySocket.put(serialize, _socket);
         
         //开启一个异步任务用于验证Socket的合法性
-        ALAsynTaskManager.getInstance().regSysTask(new AsynRun_UserLoginTask(serialize, _socket.getUserName(), _socket.getUserPassword()));
+        ALAsynTaskManager.getInstance().regSysTask(new AsynRun_UserLoginTask(serialize, _socket));
         
         //开启定时任务检测是否登录超时，超时则直接按照失败处理
         ALSynTaskManager.getInstance().regTask(new SynCheckVerifyLoginTimeOutTask(serialize), 30000);
@@ -63,7 +109,7 @@ public class ALVerifyObjMgr
      */
     protected void _comfirmVerifyResult(int _serialize, _AALBasicServerSocketListener _listener)
     {
-        ALBasicServerSocket socket = m_htVerifySocket.remove(_serialize);
+        ALBasicServerSocket socket = _m_htVerifySocket.remove(_serialize);
         
         if(null == socket)
             return ;
