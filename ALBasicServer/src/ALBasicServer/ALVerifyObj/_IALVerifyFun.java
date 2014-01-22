@@ -8,5 +8,6 @@ public interface _IALVerifyFun
      * @author alzq.z
      * @time   Feb 19, 2013 4:18:12 PM
      */
-    public abstract void verifyIdentity(ALVerifyDealerObj _verifyDealer, String _userName, String _userPassword);
+    public abstract void verifyIdentity(ALVerifyDealerObj _verifyDealer, int _clientType, String _userName
+            , String _userPassword, String _customMsg);
 }

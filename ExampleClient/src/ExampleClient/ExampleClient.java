@@ -8,12 +8,12 @@ public class ExampleClient {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		//初始化基本客户端配置相关
+		//鍒濆鍖栧熀鏈鎴风閰嶇疆鐩稿叧
 		ALBasicClient.init();
 		
-		//创建客户端对象并进行连接
+		//鍒涘缓瀹㈡埛绔璞″苟杩涜杩炴帴
 		ExampleClientConnecter connecter = new ExampleClientConnecter("127.0.0.1", 1001);
-		connecter.login("", "");
+		connecter.login(1, "", "", "custom msg ...~");
 	}
 
 }

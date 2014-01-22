@@ -24,17 +24,17 @@ public class ExampleServerSocketListener extends _AALBasicServerSocketListener {
 	public void receiveMsg(ByteBuffer arg0) {
 		ALServerLog.Error("receiveMsg: " + ALBasicCommonFun.getString(arg0));
 		
-		//¿ªÆôÂß¼­ÈÎÎñ
+		//å¼€å¯é€»è¾‘ä»»åŠ¡
 		ALSynTaskManager.getInstance().regTask(new ExampleSynTask());
 		
-		//¿ªÆôÑÓ³ÙÂß¼­ÈÎÎñ
+		//å¼€å¯å»¶è¿Ÿé€»è¾‘ä»»åŠ¡
 		ALSynTaskManager.getInstance().regTask(new ExampleDelaySynTask(), 3000);
 		
-		//¿ªÆôÒì²½ÈÎÎñ£¬2ÖÖ·½Ê½
+		//å¼€å¯å¼‚æ­¥ä»»åŠ¡ï¼Œ2ç§æ–¹å¼
 		ALAsynTaskManager.getInstance().regTask(0, new ExampleAsynRunTask());
 		ALAsynTaskManager.getInstance().regTask(0, new ExampleAsynCallTask(), new ExampleAsynCallbackTask());
 		
-		//·µ»ØÏûÏ¢
+		//è¿”å›æ¶ˆæ¯
 		send(ALBasicCommonFun.getStringBuf("server message"));
 	}
 

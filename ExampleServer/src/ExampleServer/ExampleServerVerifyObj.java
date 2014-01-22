@@ -2,13 +2,18 @@ package ExampleServer;
 
 import ALBasicServer.ALVerifyObj.ALVerifyDealerObj;
 import ALBasicServer.ALVerifyObj._IALVerifyFun;
+import ALServerLog.ALServerLog;
 
 public class ExampleServerVerifyObj implements _IALVerifyFun {
 
 	@Override
-	public void verifyIdentity(ALVerifyDealerObj arg0, String arg1, String arg2) {
-		//Ê¾Àı²»½øĞĞÑéÖ¤£¬Ö±½Ó·µ»Ø¿Í»§¶Ë´¦Àí¶ÔÏó
-		arg0.comfirmResult(new ExampleServerSocketListener());
+	public void verifyIdentity(ALVerifyDealerObj _verifyDealer, int _clientType, String _userName
+            , String _userPassword, String _customMsg) {
+		
+		ALServerLog.Error("Rec Verify Custom Message: " + _customMsg);
+		
+		//ç¤ºä¾‹ä¸è¿›è¡ŒéªŒè¯ï¼Œç›´æ¥è¿”å›å®¢æˆ·ç«¯å¤„ç†å¯¹è±¡
+		_verifyDealer.comfirmResult(new ExampleServerSocketListener());
 	}
 
 }

@@ -22,10 +22,14 @@ public class ALBasicServerSocket
     private SocketChannel _m_scSocketChannel;
     /** 对应的处理对象 */
     private _AALBasicServerSocketListener _m_clListener;
+    /** 验证时传入的客户端类型 */
+    private int _m_iLoginClientType;
     /** 验证时传入的用户名 */
     private String _m_sUserName;
     /** 验证时传入的用户密码 */
     private String _m_sUserPassword;
+    /** 验证时传入的自定义信息 */
+    private String _m_sLoginCustomMsg;
     /** 是否正在登录 */
     private boolean _m_bLoginIng;
     
@@ -69,8 +73,10 @@ public class ALBasicServerSocket
     
     public long getSocketID() {return _m_ID;}
     public int getVerifyObjIdx() {return _m_iVerifyObjIdx;}
+    public int getLoginClientType() {return _m_iLoginClientType;}
     public String getUserName() {return _m_sUserName;}
     public String getUserPassword() {return _m_sUserPassword;}
+    public String getLoginCustomMsg() {return _m_sLoginCustomMsg;}
     public _AALBasicServerSocketListener getListener() {return _m_clListener;}
     public String getIP() {return _m_ConnectIP;}
     public int getPort() {return _m_iConnectPort;}
@@ -466,14 +472,10 @@ public class ALBasicServerSocket
         _m_bLoginIng = true;
         
         //还未登录进入登录流程
-        String userName = null;
-        String userPassword  = null;
-        
-        userName = info.getUserName();
-        userPassword = info.getUserPassword();
-        
-        _m_sUserName = userName;
-        _m_sUserPassword = userPassword;
+        _m_iLoginClientType = info.getClientType();
+        _m_sUserName = info.getUserName();
+        _m_sUserPassword = info.getUserPassword();
+        _m_sLoginCustomMsg = info.getCustomMsg();
         
         if(null != _m_scSocketChannel)
         {

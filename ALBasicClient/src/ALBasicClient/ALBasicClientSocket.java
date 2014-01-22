@@ -16,10 +16,6 @@ public class ALBasicClientSocket
     private long _m_iClientID;
     /** 对应的处理对象 */
     private _AALBasicClientListener _m_clClient;
-    /** 验证时传入的用户名 */
-    private String _m_sUserName;
-    /** 验证时传入的用户密码 */
-    private String _m_sUserPassword;
     /** 是否正在登录 */
     private boolean _m_bLoginIng;
     /** 是否登录成功 */
@@ -47,8 +43,6 @@ public class ALBasicClientSocket
         _m_scSocket = null;
         
         _m_clClient = _client;
-        _m_sUserName = null;
-        _m_sUserPassword = null;
         
         _m_rSendListMutex = new ReentrantLock();
         _m_lSendBufferList = new LinkedList<ByteBuffer>();
@@ -62,8 +56,6 @@ public class ALBasicClientSocket
     
     public long getID() {return _m_iClientID;}
     public boolean getIsLoginIng() {return _m_bLoginIng;}
-    public String getUserName() {return _m_sUserName;}
-    public String getUserPassword() {return _m_sUserPassword;}
     public _AALBasicClientListener getClient() {return _m_clClient;}
     
     /**************
@@ -86,17 +78,15 @@ public class ALBasicClientSocket
      * @author alzq.z
      * @time   Feb 19, 2013 9:57:25 PM
      */
-    public void login(String _userName, String _userPassword)
+    public void login(int _clientType, String _userName, String _userPassword, String _customMsg)
     {
         if(_m_bLoginIng || _m_bLoged)
             return ;
-        
-        _m_sUserName = _userName;
-        _m_sUserPassword = _userPassword;
 
         _m_bLoginIng = true;
 
-        ALBasicClientRecThread recThread = new ALBasicClientRecThread(this, _m_sServerIP, _m_iServerPort);
+        ALBasicClientRecThread recThread = 
+                new ALBasicClientRecThread(_clientType, _userName, _userPassword, _customMsg, this, _m_sServerIP, _m_iServerPort);
         recThread.start();
     }
     
@@ -212,7 +202,7 @@ public class ALBasicClientSocket
             }
             catch (IOException e)
             {
-                ALServerLog.Error("Client Socket send message error! user[" + _m_sUserName + "]");
+                ALServerLog.Error("Client Socket send message error! socket id[" + getID() + "]");
                 e.printStackTrace();
                 break;
             }
@@ -339,8 +329,8 @@ public class ALBasicClientSocket
             //获取ID
             _m_iClientID = msg.getSocketID();
             
-            //比较用户名
-            if(msg.getUserName().equalsIgnoreCase(_m_sUserName))
+            //比较ID是否有效
+            if(_m_iClientID > 0)
             {
                 _m_bLoged = true;
                 _m_clClient.LoginSuc();

@@ -15,6 +15,13 @@ import BasicServer.C2S_BasicClientVerifyInfo;
 
 public class ALBasicClientRecThread extends _AALBasicThread
 {
+    /** 客户端对象类型 */
+    private int _m_iClientType;
+    /** 登录验证信息 */
+    private String _m_sUserName;
+    private String _m_sUserPassword;
+    /** 登录时发送的自定义信息 */
+    private String _m_sCustomMsg;
     /** 线程是否退出 */
     private boolean _m_bThreadExit;
     private ALBasicClientSocket _m_scSocket;
@@ -22,8 +29,12 @@ public class ALBasicClientRecThread extends _AALBasicThread
     private String _m_sServerIP;
     private int _m_iServerPort;
     
-    public ALBasicClientRecThread(ALBasicClientSocket _socket, String _serverIP, int _serverPort)
+    public ALBasicClientRecThread(int _clientType, String _userName, String _userPassword, String _customMsg, ALBasicClientSocket _socket, String _serverIP, int _serverPort)
     {
+        _m_iClientType = _clientType;
+        _m_sUserName = _userName;
+        _m_sUserPassword = _userPassword;
+        _m_sCustomMsg = _customMsg;
         _m_bThreadExit = false;
         _m_scSocket = _socket;
         _m_sServerIP = _serverIP;
@@ -63,8 +74,13 @@ public class ALBasicClientRecThread extends _AALBasicThread
             
             //发送登录请求
             C2S_BasicClientVerifyInfo msg = new C2S_BasicClientVerifyInfo();
-            msg.setUserName(_m_scSocket.getUserName());
-            msg.setUserPassword(_m_scSocket.getUserPassword());
+            msg.setClientType(_m_iClientType);
+            msg.setUserName(_m_sUserName);
+            msg.setUserPassword(_m_sUserPassword);
+            if(null == _m_sCustomMsg)
+                msg.setCustomMsg("");
+            else
+                msg.setCustomMsg(_m_sCustomMsg);
             
             _m_scSocket.send(msg.makePackage());
         }

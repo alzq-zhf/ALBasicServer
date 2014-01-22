@@ -2,36 +2,36 @@ package BasicServer;
 
 import java.nio.ByteBuffer;
 public class S2C_BasicClientVerifyResult implements ALBasicProtocolPack._IALProtocolStructure {
-private String userName;
 private Long socketID;
+private String customRetMsg;
 
 
 public S2C_BasicClientVerifyResult() {
-	userName = "";
 	socketID = (long)0;
+	customRetMsg = "";
 }
 
 public final byte getMainOrder() { return (byte)0; }
 
 public final byte getSubOrder() { return (byte)0; }
 
-public String getUserName() { return userName; }
-public void setUserName(String _userName) { userName = _userName; }
 public long getSocketID() { return socketID; }
 public void setSocketID(long _socketID) { socketID = _socketID; }
+public String getCustomRetMsg() { return customRetMsg; }
+public void setCustomRetMsg(String _customRetMsg) { customRetMsg = _customRetMsg; }
 
 
 public final int GetUnzipBufSize() {
 	int _size = 8;
-	_size += ALBasicProtocolPack.ALProtocolCommon.GetStringBufSize(userName);
+	_size += ALBasicProtocolPack.ALProtocolCommon.GetStringBufSize(customRetMsg);
 
 	return _size;
 }
 
 public final int GetZipBufSize() {
 	int _size = 0;
-	_size += ALBasicProtocolPack.ALProtocolCommon.GetStringBufSize(userName);
 	_size += ALBasicProtocolPack.ALProtocolCommon.GetLongZipSize(socketID);
+	_size += ALBasicProtocolPack.ALProtocolCommon.GetStringBufSize(customRetMsg);
 
 	return _size;
 }
@@ -39,23 +39,23 @@ public final int GetZipBufSize() {
 
 
 public final void ReadUnzipBuf(ByteBuffer _buf) {
-	userName = ALBasicProtocolPack.ALProtocolCommon.GetStringFromBuf(_buf);
 	socketID = _buf.getLong();
+	customRetMsg = ALBasicProtocolPack.ALProtocolCommon.GetStringFromBuf(_buf);
 }
 
 public final void ReadZipBuf(ByteBuffer _buf) {
-	userName = ALBasicProtocolPack.ALProtocolCommon.GetStringFromBuf(_buf);
 	socketID = ALBasicProtocolPack.ALProtocolCommon.ZipGetLongFromBuf(_buf);
+	customRetMsg = ALBasicProtocolPack.ALProtocolCommon.GetStringFromBuf(_buf);
 }
 
 public final void PutUnzipBuf(ByteBuffer _buf) {
-	ALBasicProtocolPack.ALProtocolCommon.PutStringIntoBuf(_buf, userName);
 	_buf.putLong(socketID);
+	ALBasicProtocolPack.ALProtocolCommon.PutStringIntoBuf(_buf, customRetMsg);
 }
 
 public final void PutZipBuf(ByteBuffer _buf) {
-	ALBasicProtocolPack.ALProtocolCommon.PutStringIntoBuf(_buf, userName);
 	ALBasicProtocolPack.ALProtocolCommon.ZipPutLongIntoBuf(_buf, socketID);
+	ALBasicProtocolPack.ALProtocolCommon.PutStringIntoBuf(_buf, customRetMsg);
 }
 
 public final ByteBuffer makeFullPackage() {

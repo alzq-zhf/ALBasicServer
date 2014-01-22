@@ -23,9 +23,13 @@ public abstract class _AALBasicClientListener implements _IALProtocolReceiver
      * @author alzq.z
      * @time   Feb 19, 2013 10:04:33 PM
      */
-    public void login(String _userName, String _userPassword)
+    public void login(int _clientType, String _userName, String _userPassword)
     {
-        _m_csClientSocket.login(_userName, _userPassword);
+        _m_csClientSocket.login(_clientType, _userName, _userPassword, "");
+    }
+    public void login(int _clientType, String _userName, String _userPassword, String _customMsg)
+    {
+        _m_csClientSocket.login(_clientType, _userName, _userPassword, _customMsg);
     }
     
     /********************
@@ -55,8 +59,6 @@ public abstract class _AALBasicClientListener implements _IALProtocolReceiver
         
         _m_csClientSocket.send(_protocolObj.makeFullPackage());
     }
-
-    public String getUserName() {return _m_csClientSocket.getUserName();}
 
     /****************
      * 接收消息的处理函数，此函数在接收线程中处理，如需要更好的处理方式则需要另开线程进行处理

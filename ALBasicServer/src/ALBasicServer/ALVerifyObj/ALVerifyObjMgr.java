@@ -109,6 +109,10 @@ public class ALVerifyObjMgr
      */
     protected void _comfirmVerifyResult(int _serialize, _AALBasicServerSocketListener _listener)
     {
+        _comfirmVerifyResult(_serialize, _listener, "");
+    }
+    protected void _comfirmVerifyResult(int _serialize, _AALBasicServerSocketListener _listener, String _customRetMsg)
+    {
         ALBasicServerSocket socket = _m_htVerifySocket.remove(_serialize);
         
         if(null == socket)
@@ -128,8 +132,8 @@ public class ALVerifyObjMgr
 
             //创建返回协议
             S2C_BasicClientVerifyResult retMsg = new S2C_BasicClientVerifyResult();
-            retMsg.setUserName(socket.getUserName());
             retMsg.setSocketID(socket.getSocketID());
+            retMsg.setCustomRetMsg(_customRetMsg);
 
             //发送登录完成的协议返回
             _listener.send(retMsg.makePackage());

@@ -28,7 +28,8 @@ public class AsynRun_UserLoginTask implements _IALAsynRunnableTask
         if(null == verifyFun)
             return ;
         
-        verifyFun.verifyIdentity(_m_vdVerifyDealer, _m_ssSocketObj.getUserName(), _m_ssSocketObj.getUserPassword());
+        verifyFun.verifyIdentity(_m_vdVerifyDealer, _m_ssSocketObj.getLoginClientType(), _m_ssSocketObj.getUserName()
+                , _m_ssSocketObj.getUserPassword(), _m_ssSocketObj.getLoginCustomMsg());
     }
 
 }
