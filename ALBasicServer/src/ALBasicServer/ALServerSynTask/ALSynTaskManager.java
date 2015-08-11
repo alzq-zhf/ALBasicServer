@@ -1,7 +1,5 @@
 package ALBasicServer.ALServerSynTask;
 
-import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.locks.ReentrantLock;
@@ -32,16 +30,23 @@ public class ALSynTaskManager
     private LinkedList<_IALSynTask> _m_lCurrentTaskList;
     /** 当前任务队列操作锁 */
     private ReentrantLock _m_lCurrentTaskMutex;
-    
-    /** 定时任务队列，索引为定时的时间值（毫秒） */
-    private HashMap<Long, LinkedList<_IALSynTask>> _m_htTimingTaskTable;
-    /** 定时任务队列锁 */
-    private ReentrantLock _m_lTimingTaskMutex;
-    
+
     /** 定时任务的时间精度 */
     private int _m_iTimingTaskCheckTime;
-    /** 定时任务最后一次处理的时间 */
-    private long _m_lTimingTaskLastCheckTime;
+    /** 定时任务的大区间长度，根据精度和长度可以决定一个区间的时间跨度 */
+    private int _m_iTimingTaskCheckAreaSize;
+    /** 定时任务开启处理的时间标记 */
+    private long _m_lTimingTaskMgrStartTime;
+    
+    /** 最后一次检测的回合数和对应下标 */
+    private int _m_iLastCheckRound;
+    private int _m_iLastCheckTick;
+
+    /** 记录固定队列长度的定时任务存储队列，用数组便于根据下标查询 */
+    private ALSynTimingTaskNode[] _m_arrTimingTaskNodeList;
+    
+    /** 定时任务队列锁 */
+    private ReentrantLock _m_lTimingTaskMutex;
     
     /** 任务对应的同步信号量 */
     private Semaphore _m_sTaskEvent;
@@ -51,16 +56,39 @@ public class ALSynTaskManager
         _m_lCurrentTaskList = new LinkedList<_IALSynTask>();
         _m_lCurrentTaskMutex = new ReentrantLock();
         
-        _m_htTimingTaskTable = new HashMap<Long, LinkedList<_IALSynTask>>();
-        _m_lTimingTaskMutex = new ReentrantLock();
+        //读取配置
         _m_iTimingTaskCheckTime = ALBasicServerConf.getInstance().getTimerCheckTime();
+        if(_m_iTimingTaskCheckTime < 10)
+            _m_iTimingTaskCheckTime = 10;
+        if(_m_iTimingTaskCheckTime > 1000)
+            _m_iTimingTaskCheckTime = 1000;
         
-        _m_lTimingTaskLastCheckTime = ALBasicCommonFun.getNowTimeMS();
+        _m_iTimingTaskCheckAreaSize = ALBasicServerConf.getInstance().getTimerCheckAreaSize();
+        if(_m_iTimingTaskCheckAreaSize < 1000)
+            _m_iTimingTaskCheckAreaSize = 1000;
+        if(_m_iTimingTaskCheckAreaSize > 100000)
+            _m_iTimingTaskCheckAreaSize = 100000;
+        
+        //获取开启管理对象的时间
+        _m_lTimingTaskMgrStartTime = ALBasicCommonFun.getNowTimeMS();
+        //初始化最后一次检测的位置信息
+        _m_iLastCheckRound = 0;
+        _m_iLastCheckTick = 0;
+        
+        //创建固定区间长度的精度队列
+        _m_arrTimingTaskNodeList = new ALSynTimingTaskNode[_m_iTimingTaskCheckAreaSize];
+        for(int i = 0; i < _m_iTimingTaskCheckAreaSize; i++)
+        {
+            _m_arrTimingTaskNodeList[i] = new ALSynTimingTaskNode(0);
+        }
+
+        //创建锁对象
+        _m_lTimingTaskMutex = new ReentrantLock();
 
         _m_sTaskEvent = new Semaphore(0);
     }
     
-    public long getTimingTaskLastCheckTime() {return _m_lTimingTaskLastCheckTime;}
+    public int getTaskCheckTime() {return _m_iTimingTaskCheckTime;}
 
     /*****************
      * 注册一个直接执行的任务
@@ -101,7 +129,8 @@ public class ALSynTaskManager
             //获取当前时间
             long nowTime = ALBasicCommonFun.getNowTimeMS();
             //注册定时任务，将任务添加到表中等待插入到执行队列
-            _regTimingTask(nowTime + _time, _task);
+            if(!_regTimingTask(nowTime + _time - _m_lTimingTaskMgrStartTime, _task))
+                regTask(_task);
         }
         
         _unlockTimingTaskList();
@@ -120,7 +149,8 @@ public class ALSynTaskManager
             //获取当前时间
             long nowTime = ALBasicCommonFun.getNowTimeMS();
             //注册定时任务，将任务添加到表中等待插入到执行队列
-            _regTimingTask(nowTime + _time, _task);
+            if(!_regTimingTask(nowTime + _time - _m_lTimingTaskMgrStartTime, _task))
+                regTask(_task);
         }
         
         _unlockTimingTaskList();
@@ -151,17 +181,6 @@ public class ALSynTaskManager
         return task;
     }
     
-    /***********************
-     * 将指定范围时间的需要执行的定时任务取出
-     * 
-     * @author alzq.z
-     * @time   Feb 18, 2013 11:22:52 PM
-     */
-    public LinkedList<LinkedList<_IALSynTask>> popNeedDealTimingTask(long _startTime)
-    {
-        return _popTimerTask(_startTime);
-    }
-    
     /****************
      * 注册整个队列的定时任务
      * 系统内接口不对外开放
@@ -182,22 +201,6 @@ public class ALSynTaskManager
             
             _unlockCurrentTaskList();
         }
-    }
-    
-    /*****************
-     * 刷新当前时间对应精度舍入后的最后一个时间点
-     * 
-     * @author alzq.z
-     * @time   Feb 18, 2013 11:13:53 PM
-     */
-    protected long _refreshTimingTaskLastCheckTime()
-    {
-        long nowTime = new Date().getTime();
-        
-        int deltaTime = (int)(nowTime % _m_iTimingTaskCheckTime);
-        _m_lTimingTaskLastCheckTime = nowTime - deltaTime;
-        
-        return _m_lTimingTaskLastCheckTime;
     }
     
     /***************
@@ -253,64 +256,85 @@ public class ALSynTaskManager
     }
     
     /****************
-     * 在定时任务处理表中添加定时执行的任务
+     * 在定时任务处理表中添加定时执行的任务，带入的_dealTime是距离本任务管理对象开启的时间间隔
      * 
      * @author alzq.z
      * @time   Feb 18, 2013 11:06:12 PM
      */
-    protected void _regTimingTask(long _dealTime, _IALSynTask _task)
+    protected boolean _regTimingTask(long _dealTime, _IALSynTask _task)
     {
-        //根据时间精度将时间更改为最近的执行时间
-        int deltaTime = (int)(_dealTime % _m_iTimingTaskCheckTime);
-        
-        //计算实际执行的时间，当时间不为处理精度的整数时，往后推到精度的整数时进行处理
-        long realDealTime = _dealTime;
-        if(0 != deltaTime)
-            realDealTime = _dealTime - deltaTime + _m_iTimingTaskCheckTime;
-        
         _lockTimingTaskList();
         
-        //获取对应处理时间的处理任务队列
-        LinkedList<_IALSynTask> taskList = _m_htTimingTaskTable.get(realDealTime);
-        if(null == taskList)
+        try
         {
-            taskList = new LinkedList<_IALSynTask>();
-            _m_htTimingTaskTable.put(realDealTime, taskList);
+            //根据时间精度以及回合总时间区域计算对应的回合数以及时间节点
+            int tick = (int)((_dealTime + _m_iTimingTaskCheckTime - 1) / _m_iTimingTaskCheckTime);
+            int round = tick / _m_iTimingTaskCheckAreaSize;
+            //计算实际的下标数
+            tick = tick - (round * _m_iTimingTaskCheckAreaSize);
+            
+            //当下标和回合等于最后一次检测的数据时将任务移到下一个下标中进行处理
+            if(tick <= _m_iLastCheckTick && round <= _m_iLastCheckRound)
+            {
+                tick++;
+                if(tick >= _m_iTimingTaskCheckAreaSize)
+                {
+                    tick -= _m_iTimingTaskCheckAreaSize;
+                    round++;
+                }
+            }
+            
+            //将任务添加到对应下标
+            return _m_arrTimingTaskNodeList[tick].addTimingTask(round, _task);
         }
-        
-        taskList.add(_task);
-        
-        _unlockTimingTaskList();
+        finally
+        {
+            _unlockTimingTaskList();
+        }
     }
 
     /********************
-     * 将指定开始时间线到当前最后精度处理时间线之间的所有任务取出并放入处理队列
+     * 将到目前为止的所有定时任务取出
      * 
      * @author alzq.z
      * @time   Feb 18, 2013 11:23:11 PM
      */
-    protected LinkedList<LinkedList<_IALSynTask>> _popTimerTask(long _startTime)
+    protected void _popTimerTask(LinkedList<_IALSynTask> _recList)
     {
-        LinkedList<LinkedList<_IALSynTask>> list = new LinkedList<LinkedList<_IALSynTask>>();
-        
+        if(null == _recList)
+            return ;
+
         _lockTimingTaskList();
 
-        long endTime = _m_lTimingTaskLastCheckTime;
-        
-        //当时间在时间区间内时，取出对应的任务
-        long time = _startTime;
-        while (time <= endTime)
+        try
         {
-            LinkedList<_IALSynTask> tmpList = _m_htTimingTaskTable.remove(time);
+            //获取运行的时间
+            long dealTime = ALBasicCommonFun.getNowTimeMS() - _m_lTimingTaskMgrStartTime;
+            //根据运行时间计算出当前时间对应的下标
+            int tick = (int)(dealTime / _m_iTimingTaskCheckTime);
+            int round = tick / _m_iTimingTaskCheckAreaSize;
+            //计算实际的下标数
+            tick = tick - (round * _m_iTimingTaskCheckAreaSize);
             
-            if(null != tmpList)
-                list.add(tmpList);
-            
-            time += _m_iTimingTaskCheckTime;
+            //将下标和round不断累加获取需要执行的任务
+            while(_m_iLastCheckTick < tick || _m_iLastCheckRound < round)
+            {
+                //累加下标
+                _m_iLastCheckTick++;
+                //判断下标是否越界
+                if(_m_iLastCheckTick >= _m_iTimingTaskCheckAreaSize)
+                {
+                    _m_iLastCheckTick -= _m_iTimingTaskCheckAreaSize;
+                    _m_iLastCheckRound++;
+                }
+                
+                //获取对应数据
+                _m_arrTimingTaskNodeList[_m_iLastCheckTick].popAllRoundTaskAndMoveNextRound(_m_iLastCheckRound, _recList);
+            }
         }
-        
-        _unlockTimingTaskList();
-        
-        return list;
+        finally
+        {
+            _unlockTimingTaskList();
+        }
     }
 }

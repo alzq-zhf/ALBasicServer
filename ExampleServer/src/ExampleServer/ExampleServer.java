@@ -15,5 +15,4 @@ public class ExampleServer {
 		//开始进行监听操作
 		ALBasicServer.startListener(1001, 131072, new ExampleServerVerifyObj());
 	}
-
 }

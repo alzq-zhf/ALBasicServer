@@ -19,7 +19,7 @@ public class SynDelaySendTask implements _IALSynTask
     @Override
     public void run()
     {
-        ALServerSocketMgr.getInstance().regSocket(socket);
+        ALServerSendSocketMgr.getInstance().addSendSocket(socket);
     }
 
 }

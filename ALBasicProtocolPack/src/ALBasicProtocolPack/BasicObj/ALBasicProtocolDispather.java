@@ -38,6 +38,20 @@ public class ALBasicProtocolDispather
         _m_lDealMap[i] = _dispathRegister;
     }
     
+    /**********************
+     * 返回对应协议的处理对象
+     * @company Isg @author alzq.zhf
+     * 2014年11月15日 下午12:02:57
+     */
+    public _AALBasicProtocolMainOrderDealer getDealer(byte _mainOrder)
+    {
+        int iIndex = ALBasicCommonFun.byte2int(_mainOrder);
+        if(iIndex < 0 || iIndex >= _m_lDealMap.length)
+            return null;
+        
+        return _m_lDealMap[iIndex];
+    }
+    
     
 	/***********************
 	 * 协议处理函数
@@ -51,8 +65,7 @@ public class ALBasicProtocolDispather
 	    byte mainOrder = _msg.get();
 	    
 	    //获取协议处理对象
-	    int iIndex = ALBasicCommonFun.byte2int(mainOrder);
-	    _AALBasicProtocolMainOrderDealer dealer = _m_lDealMap[iIndex];
+	    _AALBasicProtocolMainOrderDealer dealer = getDealer(mainOrder);
 	    
 	    if(null == dealer)
 	        return false;

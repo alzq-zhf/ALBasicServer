@@ -200,6 +200,24 @@ public class ALBasicCommonFun
     }
     
     /**
+    * 获取当前时间信息连接起来的数字
+    * @return
+    */
+   public static long getNowTimeNum()
+   {
+       Calendar calendar = Calendar.getInstance();
+       
+       long timeNum = calendar.get(Calendar.YEAR);
+       timeNum = (timeNum * 100) + calendar.get(Calendar.MONTH) + 1;
+       timeNum = (timeNum * 100) + calendar.get(Calendar.DAY_OF_MONTH);
+       timeNum = (timeNum * 100) + calendar.get(Calendar.HOUR_OF_DAY);
+       timeNum = (timeNum * 100) + calendar.get(Calendar.MINUTE);
+       timeNum = (timeNum * 100) + calendar.get(Calendar.SECOND);
+       
+       return timeNum;
+   }
+    
+    /**
      * 产生一个处于区间 0<= x < _iRangeLimit 的随机整数
      * @return
      */
@@ -217,6 +235,20 @@ public class ALBasicCommonFun
     {
         return Math.abs(g_randomObj.nextInt(_iRangeLimit + 1));
     }
+    public static long getRandomLong()
+    {
+        return Math.abs(g_randomObj.nextLong());
+    }
+    
+    /**
+     * 产生一个处于区间 0<= x <= 1 的随机浮点数
+     * @param iDelta
+     * @return
+     */
+    public static float getRandomFloat()
+    {
+        return g_randomObj.nextFloat();
+    }
     
     /**
      * 将字节数组转换成十六进制字符串
@@ -225,8 +257,8 @@ public class ALBasicCommonFun
      */
     public static String getHexString(byte[] _buf)
     {
-        if(null == _buf)
-            return null;
+        if(null == _buf || _buf.length <= 0)
+            return "0";
         
         //逐个字节处理
         StringBuilder builder = new StringBuilder();
@@ -235,7 +267,7 @@ public class ALBasicCommonFun
             byte b = _buf[i];
             
             //取前4位
-            builder.append(g_sHexStrIdxString.charAt(b >> 4));
+            builder.append(g_sHexStrIdxString.charAt((b >> 4) & 0x0F));
             //取后4位
             builder.append(g_sHexStrIdxString.charAt(b & 0x0F));
         }
@@ -245,7 +277,7 @@ public class ALBasicCommonFun
     public static String getHexString(ByteBuffer _buf)
     {
         if(null == _buf)
-            return null;
+            return "";
         
         //记录当前下标位置
         int prePos = _buf.position();
@@ -257,7 +289,7 @@ public class ALBasicCommonFun
             byte b = _buf.get();
             
             //取前4位
-            builder.append(g_sHexStrIdxString.charAt(b >> 4));
+            builder.append(g_sHexStrIdxString.charAt((b >> 4) & 0x0F));
             //取后4位
             builder.append(g_sHexStrIdxString.charAt(b & 0x0F));
         }

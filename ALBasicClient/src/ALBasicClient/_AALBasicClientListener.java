@@ -94,5 +94,5 @@ public abstract class _AALBasicClientListener implements _IALProtocolReceiver
      * @author alzq.z
      * @time   Feb 19, 2013 10:05:11 PM
      */
-    public abstract void LoginSuc();
+    public abstract void LoginSuc(String _customRetMsg);
 }

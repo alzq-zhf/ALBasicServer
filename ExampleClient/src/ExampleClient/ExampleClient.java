@@ -12,7 +12,7 @@ public class ExampleClient {
 		ALBasicClient.init();
 		
 		//创建客户端对象并进行连接
-		ExampleClientConnecter connecter = new ExampleClientConnecter("127.0.0.1", 1001);
+		ExampleClientConnecter connecter = new ExampleClientConnecter("127.0.0.1", 1002);
 		connecter.login(1, "", "", "custom msg ...~");
 	}
 

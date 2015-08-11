@@ -79,6 +79,21 @@ public abstract class _AALBasicProtocolMainOrderDealer
         dealArray[_subOrderID] = _dealer;
     }
     
+   /********************
+    * 获取子处理对象信息
+    * @company Isg @author alzq.zhf
+    * 2014年11月15日 下午12:08:17
+    */
+   public _AALBasicProtocolSubOrderDealer getSubDealer(byte _subOrder)
+   {
+       int iIndex = ALBasicCommonFun.byte2int(_subOrder);
+       //编号超出数组大小，直接返回失败
+       if(iIndex >= dealArray.length)
+           return null;
+
+       return dealArray[iIndex];
+   }
+    
 	/**********************
 	 * 根据协议编号分发协议并进行处理
 	 * 
@@ -92,20 +107,16 @@ public abstract class _AALBasicProtocolMainOrderDealer
 
         //获取子协议编号
         byte subType = _msg.get();
+        //获取对应处理对象
+        _AALBasicProtocolSubOrderDealer dealer = getSubDealer(subType);
 
-        //编号超出数组大小，直接返回失败
-        if(subType >= dealArray.length)
-        {
+        //判断处理对象是否有效
+        if(null == dealer)
             return false;
-        }
         
-        //处理具体协议对象
-        if(dealArray[subType] != null)
-        {
-            dealArray[subType].dealProtocol(_receiver, _msg);
-            return true;
-        }
-
-        return false;
+        //处理对象
+        dealer.dealProtocol(_receiver, _msg);
+        //返回处理成功
+        return true;
 	}
 }

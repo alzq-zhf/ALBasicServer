@@ -22,10 +22,10 @@ public class SynDisconnectTask implements _IALSynTask
         if(null == listener)
             return ;
         
+        listener.disconnect();
+        
         //设置Socket为NULL
         listener.setSocket(null);
-        
-        listener.disconnect();
     }
 
 }

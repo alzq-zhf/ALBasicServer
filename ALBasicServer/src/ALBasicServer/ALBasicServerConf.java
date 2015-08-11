@@ -30,6 +30,8 @@ public class ALBasicServerConf
     private int _m_iSendThreadNum;
     /** 定时任务检测时间的精度 */
     private int _m_iTimerCheckTime;
+    /** 定时任务的大区间长度，根据精度和长度可以决定一个区间的时间跨度 */
+    private int _m_iTimerCheckAreaSize;
     
     public ALBasicServerConf()
     {
@@ -37,7 +39,8 @@ public class ALBasicServerConf
         _m_bCheckMutex = true;
         _m_iSynTaskThreadNum = 4;
         _m_iSendThreadNum = 1;
-        _m_iTimerCheckTime = 50;
+        _m_iTimerCheckTime = 20;
+        _m_iTimerCheckAreaSize = 5000;
     }
 
     public String getServerTag() {return _m_sServerTag;}
@@ -45,6 +48,7 @@ public class ALBasicServerConf
     public int getSynTaskThreadNum() {return _m_iSynTaskThreadNum;}
     public int getSendThreadNum() {return _m_iSendThreadNum;}
     public int getTimerCheckTime() {return _m_iTimerCheckTime;}
+    public int getTimerCheckAreaSize() {return _m_iTimerCheckAreaSize;}
     
     /*******************
      * 初始化属性设置对象，返回是否成功
@@ -99,6 +103,10 @@ public class ALBasicServerConf
             //服务器内部任务处理的时间间隔最小片段长度
             _m_iTimerCheckTime 
                 = ALConfReader.readInt(properties, "ALBasicServer.TimerCheckTime", _m_iTimerCheckTime);
+
+            //定时任务的大区间长度，根据精度和长度可以决定一个区间的时间跨度
+            _m_iTimerCheckAreaSize 
+                = ALConfReader.readInt(properties, "ALBasicServer.TimerCheckAreaSize", _m_iTimerCheckAreaSize);
 
             //是否在线程内进行死锁的检测
             _m_bCheckMutex 

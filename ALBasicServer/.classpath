@@ -6,5 +6,6 @@
 	<classpathentry combineaccessrules="false" kind="src" path="/ALBasicCommon"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ALBasicProtocolPack"/>
 	<classpathentry combineaccessrules="false" kind="src" path="/ALBasicProtocol"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/ALBasicClient"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

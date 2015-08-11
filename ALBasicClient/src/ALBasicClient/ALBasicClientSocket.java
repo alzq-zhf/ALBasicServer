@@ -328,18 +328,10 @@ public class ALBasicClientSocket
             
             //获取ID
             _m_iClientID = msg.getSocketID();
-            
-            //比较ID是否有效
-            if(_m_iClientID > 0)
-            {
-                _m_bLoged = true;
-                _m_clClient.LoginSuc();
-            }
-            else
-            {
-                _logout();
-            }
-                
+
+            //直接当作登录成功处理，未成功将直接断开
+            _m_bLoged = true;
+            _m_clClient.LoginSuc(msg.getCustomRetMsg());
         }
         catch (Exception e)
         {

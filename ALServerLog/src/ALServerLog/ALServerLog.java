@@ -99,7 +99,11 @@ public class ALServerLog
     }
     public static void Fatal(String text)
     {
+        _Log (LogLevel.FATAL, "");
+        _Log (LogLevel.FATAL, "=================== FATAL ERR =================");
         _Log (LogLevel.FATAL, text);
+        _Log (LogLevel.FATAL, "===============================================");
+        _Log (LogLevel.FATAL, "");
     }
     public static void Sys(String text)
     {

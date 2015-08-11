@@ -221,4 +221,25 @@ public class ALProtocolCommon
         
         return str;
     }
+    
+    /****************
+     * 从字节数据中获取字符串
+     * @param bb
+     * @return
+     */
+    public static String GetStringFromBuf(byte[] _strBytes)
+    {
+        String str;
+        try
+        {
+            CharsetDecoder decoder = _g_CharSet.newDecoder();
+            str = decoder.decode(ByteBuffer.wrap(_strBytes)).toString();
+        }
+        catch (Exception e)
+        {
+            return "";
+        }
+        
+        return str;
+    }
 }

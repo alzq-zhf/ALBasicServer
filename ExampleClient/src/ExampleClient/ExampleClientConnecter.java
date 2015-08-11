@@ -2,11 +2,11 @@ package ExampleClient;
 
 import java.nio.ByteBuffer;
 
-import ALBasicClient._AALBasicClientListener;
+import ALBasicClient._AALBasicServerClientListener;
 import ALBasicCommon.ALBasicCommonFun;
 import ALServerLog.ALServerLog;
 
-public class ExampleClientConnecter extends _AALBasicClientListener {
+public class ExampleClientConnecter extends _AALBasicServerClientListener {
 
 	public ExampleClientConnecter(String _serverIP, int _serverPort) {
 		super(_serverIP, _serverPort);
@@ -28,16 +28,17 @@ public class ExampleClientConnecter extends _AALBasicClientListener {
 	}
 
 	@Override
-	public void LoginSuc() {
+	public void LoginSuc(String _customMsg) {
 		ALServerLog.Error("LoginSuc");
 		
-		//发送一个字符串消息给服务器
+		//send test msg
 		send(ALBasicCommonFun.getStringBuf("client message"));
 	}
 
 	@Override
-	public void receiveMes(ByteBuffer arg0) {
-		ALServerLog.Error("receiveMes: " + ALBasicCommonFun.getString(arg0));
+	public void _dealMes(ByteBuffer _msg)
+	{
+		ALServerLog.Error("receiveMes: " + ALBasicCommonFun.getString(_msg));
 	}
 
 
